@@ -3,210 +3,246 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HifiVault</title>
+<title>HifiVault — Steganography</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#080b11;
-  --surface:#0e1117;
-  --card:#13171f;
-  --card2:#181d27;
-  --border:rgba(255,255,255,0.07);
-  --border2:rgba(255,255,255,0.13);
-  --accent:#7c6fff;
+  --bg:#07090f;
+  --surface:#0c0f18;
+  --card:#111520;
+  --card2:#161b28;
+  --border:rgba(255,255,255,0.065);
+  --border2:rgba(255,255,255,0.12);
+  --accent:#6c63ff;
   --accent2:#a78bfa;
-  --accent-dim:rgba(124,111,255,0.13);
-  --accent-glow:rgba(124,111,255,0.22);
-  --success:#20dfa8;
-  --success-dim:rgba(32,223,168,0.10);
-  --danger:#f06060;
-  --danger-dim:rgba(240,96,96,0.10);
+  --accent-dim:rgba(108,99,255,0.12);
+  --accent-glow:rgba(108,99,255,0.2);
+  --success:#10d9a0;
+  --success-dim:rgba(16,217,160,0.08);
+  --danger:#f05c5c;
+  --danger-dim:rgba(240,92,92,0.08);
   --warn:#f59e0b;
-  --warn-dim:rgba(245,158,11,0.10);
-  --text:#e2e5f0;
-  --muted:#555e70;
-  --subtle:#8892a4;
-  --r:12px;--rs:8px;--rxs:6px
+  --warn-dim:rgba(245,158,11,0.08);
+  --text:#dde2f0;
+  --muted:#4a5368;
+  --subtle:#7a849c;
+  --r:14px;--rs:9px;--rxs:7px;
+  --transition:0.2s cubic-bezier(0.4,0,0.2,1)
 }
-body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6;overflow-x:hidden}
 
-/* CANVAS BG */
-#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.45}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* NOISE TEXTURE */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:0.5}
+
+/* GLOW ORBS */
+.orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0}
+.orb1{width:500px;height:500px;background:radial-gradient(circle,rgba(108,99,255,0.12) 0%,transparent 70%);top:-100px;left:-100px}
+.orb2{width:400px;height:400px;background:radial-gradient(circle,rgba(167,139,250,0.07) 0%,transparent 70%);bottom:0;right:-80px}
+
 .page-content{position:relative;z-index:1}
 
 /* NAV */
-nav{display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:62px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(8,11,17,0.88);backdrop-filter:blur(16px);z-index:100}
-.nav-logo{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700;letter-spacing:-0.02em;color:var(--text);text-decoration:none}
-.logo-mark{width:34px;height:34px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 18px rgba(124,111,255,0.4)}
-.logo-mark svg{width:18px;height:18px;fill:#fff}
-.nav-right{display:flex;align-items:center;gap:12px}
-.nav-pill{font-size:11px;font-weight:600;color:var(--accent2);background:var(--accent-dim);border:1px solid rgba(124,111,255,0.22);padding:3px 10px;border-radius:20px;letter-spacing:0.05em;text-transform:uppercase}
-.nav-status{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
-.pulse-dot{width:7px;height:7px;border-radius:50%;background:var(--success);animation:pulse 2s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.85)}}
+nav{display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:58px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(7,9,15,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:100}
+.nav-logo{display:flex;align-items:center;gap:9px;font-size:16px;font-weight:700;letter-spacing:-0.025em;color:var(--text);text-decoration:none}
+.logo-mark{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 20px rgba(108,99,255,0.4)}
+.logo-mark svg{width:16px;height:16px;fill:#fff}
+.nav-right{display:flex;align-items:center;gap:10px}
+.nav-badge{font-size:10px;font-weight:600;color:var(--accent2);background:var(--accent-dim);border:1px solid rgba(108,99,255,0.2);padding:3px 10px;border-radius:20px;letter-spacing:0.06em;text-transform:uppercase}
+.nav-dot{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--success);animation:pulse 2.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 
 /* HERO */
-.hero{text-align:center;padding:56px 2rem 40px;max-width:580px;margin:0 auto}
-.hero-tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--accent2);background:var(--accent-dim);border:1px solid rgba(124,111,255,0.2);padding:4px 12px;border-radius:20px;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:20px}
-.hero h1{font-size:clamp(26px,5vw,40px);font-weight:800;letter-spacing:-0.03em;line-height:1.13;margin-bottom:12px}
-.hero h1 .hl{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero p{color:var(--muted);font-size:14px;max-width:400px;margin:0 auto}
+.hero{text-align:center;padding:52px 2rem 36px;max-width:540px;margin:0 auto}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:600;color:var(--accent2);background:var(--accent-dim);border:1px solid rgba(108,99,255,0.18);padding:4px 11px;border-radius:20px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:18px}
+.hero-eyebrow svg{width:10px;height:10px}
+h1{font-size:clamp(24px,5vw,38px);font-weight:800;letter-spacing:-0.04em;line-height:1.1;margin-bottom:12px}
+.hl{background:linear-gradient(130deg,var(--accent) 20%,var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{color:var(--muted);font-size:13px;max-width:360px;margin:0 auto;line-height:1.7}
 
-/* STEPS ROW */
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:720px;margin:0 auto 36px;padding:0 1.5rem}
-.step{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px 16px;transition:border-color 0.2s}
+/* STEPS */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:680px;margin:0 auto 32px;padding:0 1.5rem}
+.step{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;transition:border-color var(--transition)}
 .step:hover{border-color:var(--border2)}
-.step-n{width:26px;height:26px;border-radius:50%;background:var(--accent-dim);border:1px solid rgba(124,111,255,0.25);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);margin-bottom:10px}
-.step h3{font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px}
-.step p{font-size:11px;color:var(--muted);line-height:1.5}
+.step-n{font-size:10px;font-weight:700;color:var(--accent);background:var(--accent-dim);border:1px solid rgba(108,99,255,0.2);width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:9px}
+.step h3{font-size:11px;font-weight:600;color:var(--text);margin-bottom:3px}
+.step p{font-size:10px;color:var(--muted);line-height:1.55}
 
 /* TABS */
-.wrap{max-width:720px;margin:0 auto;padding:0 1.5rem 80px}
-.tabs{display:flex;gap:3px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:4px;margin-bottom:20px}
-.tab-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border-radius:var(--rs);font-size:13px;font-weight:500;color:var(--muted);background:transparent;border:none;cursor:pointer;transition:all 0.18s;font-family:inherit}
-.tab-btn svg{width:15px;height:15px;flex-shrink:0;transition:transform 0.2s}
-.tab-btn:hover{color:var(--subtle);background:rgba(255,255,255,0.04)}
-.tab-btn.active{background:var(--accent);color:#fff;box-shadow:0 2px 14px rgba(124,111,255,0.35)}
-.tab-btn.active svg{transform:scale(1.1)}
+.wrap{max-width:680px;margin:0 auto;padding:0 1.5rem 80px}
+.tabs{display:flex;gap:3px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:4px;margin-bottom:16px}
+.tab-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border-radius:var(--rs);font-size:12px;font-weight:500;color:var(--muted);background:transparent;border:none;cursor:pointer;transition:all var(--transition);font-family:inherit}
+.tab-btn svg{width:14px;height:14px;flex-shrink:0}
+.tab-btn:hover{color:var(--subtle);background:rgba(255,255,255,0.03)}
+.tab-btn.active{background:var(--accent);color:#fff;box-shadow:0 2px 16px rgba(108,99,255,0.3)}
 .panel{display:none}.panel.active{display:block}
 
 /* CARD */
-.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px;transition:border-color 0.2s}
-.card+.card{margin-top:14px}
-.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-.card-title{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;display:flex;align-items:center;gap:7px}
-.card-title svg{width:13px;height:13px;opacity:0.55}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:22px;margin-bottom:12px;transition:border-color var(--transition)}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;display:flex;align-items:center;gap:6px}
+.card-label svg{width:12px;height:12px;opacity:0.5}
 
-/* TOGGLE SWITCH (file vs message) */
-.payload-toggle{display:flex;gap:3px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:3px}
-.pt-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:500;color:var(--muted);background:transparent;border:none;cursor:pointer;transition:all 0.15s;font-family:inherit;white-space:nowrap}
-.pt-btn svg{width:13px;height:13px;flex-shrink:0}
+/* PAYLOAD TOGGLE */
+.payload-toggle{display:flex;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:3px}
+.pt-btn{display:flex;align-items:center;gap:5px;padding:5px 11px;border-radius:6px;font-size:11px;font-weight:500;color:var(--muted);background:transparent;border:none;cursor:pointer;transition:all var(--transition);font-family:inherit}
+.pt-btn svg{width:12px;height:12px;flex-shrink:0}
 .pt-btn.active{background:var(--accent);color:#fff}
 
 /* FIELDS */
-.field{margin-bottom:16px}.field:last-child{margin-bottom:0}
+.field{margin-bottom:14px}.field:last-child{margin-bottom:0}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-label{display:block;font-size:12px;font-weight:500;color:var(--subtle);margin-bottom:6px}
+label{display:block;font-size:11px;font-weight:500;color:var(--subtle);margin-bottom:5px}
 .label-row{display:flex;align-items:center;justify-content:space-between}
-.char-count{font-size:11px;color:var(--muted)}
+.char-count{font-size:10px;color:var(--muted)}
 .char-count.warn{color:var(--warn)}
 .char-count.over{color:var(--danger)}
 
 input[type="text"],input[type="password"],textarea{
   width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--rxs);
-  padding:10px 14px;font-size:13px;color:var(--text);outline:none;transition:border-color 0.15s,box-shadow 0.15s;font-family:inherit
+  padding:9px 12px;font-size:13px;color:var(--text);outline:none;transition:border-color var(--transition),box-shadow var(--transition);font-family:inherit
 }
 input[type="text"]:focus,input[type="password"]:focus,textarea:focus{
   border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)
 }
-textarea{resize:vertical;min-height:100px;line-height:1.6}
-.textarea-wrap{position:relative}
-.msg-copy-btn{position:absolute;top:8px;right:8px;background:var(--card);border:1px solid var(--border);border-radius:5px;padding:4px 8px;font-size:11px;color:var(--muted);cursor:pointer;font-family:inherit;transition:all 0.15s;display:none}
-.msg-copy-btn:hover{color:var(--text);border-color:var(--border2)}
-
-/* PAYLOAD AREA */
-.payload-area{position:relative}
-.payload-section{display:none}.payload-section.active{display:block}
+textarea{resize:vertical;min-height:90px;line-height:1.6}
 
 /* DROP ZONE */
-.dz{border:1.5px dashed var(--border2);border-radius:var(--rs);padding:28px 20px;text-align:center;cursor:pointer;transition:all 0.18s;background:var(--surface);position:relative;overflow:hidden}
-.dz::before{content:'';position:absolute;inset:0;background:var(--accent-dim);opacity:0;transition:opacity 0.18s}
+.dz{border:1.5px dashed var(--border2);border-radius:var(--rs);padding:26px 20px;text-align:center;cursor:pointer;transition:all var(--transition);background:var(--surface);position:relative;overflow:hidden}
+.dz::before{content:'';position:absolute;inset:0;background:var(--accent-dim);opacity:0;transition:opacity var(--transition)}
 .dz:hover::before,.dz.over::before{opacity:1}
 .dz:hover,.dz.over{border-color:var(--accent)}
 .dz input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.dz-icon{width:38px;height:38px;margin:0 auto 10px;background:rgba(255,255,255,0.05);border-radius:9px;display:flex;align-items:center;justify-content:center;position:relative}
-.dz-icon svg{width:19px;height:19px;stroke:var(--muted);position:relative}
-.dz-title{font-size:13px;font-weight:500;color:var(--subtle);margin-bottom:3px;position:relative}
-.dz-hint{font-size:11px;color:var(--muted);position:relative}
+.dz-icon{width:36px;height:36px;margin:0 auto 9px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:9px;display:flex;align-items:center;justify-content:center;position:relative}
+.dz-icon svg{width:17px;height:17px;stroke:var(--muted);position:relative}
+.dz-title{font-size:12px;font-weight:500;color:var(--subtle);margin-bottom:2px;position:relative}
+.dz-hint{font-size:10px;color:var(--muted);position:relative}
 
-/* IMAGE PREVIEW */
-.img-preview-wrap{display:none;margin-top:10px;border-radius:var(--rs);overflow:hidden;border:1px solid var(--border);position:relative}
-.img-preview-wrap img{width:100%;height:140px;object-fit:cover;display:block}
-.img-preview-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(8,11,17,0.8) 0%,transparent 50%);pointer-events:none}
+/* IMAGE PREVIEW — Cover */
+.img-preview-wrap{display:none;border-radius:var(--rs);overflow:hidden;border:1px solid var(--border);position:relative;margin-top:10px}
+.img-preview-wrap img{width:100%;height:130px;object-fit:cover;display:block}
+.img-preview-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(7,9,15,0.85) 0%,transparent 55%);pointer-events:none}
 .img-preview-info{position:absolute;bottom:0;left:0;right:0;padding:8px 12px;display:flex;align-items:center;justify-content:space-between}
-.img-preview-name{font-size:12px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%}
-.img-preview-size{font-size:11px;color:rgba(255,255,255,0.6)}
-.img-change-btn{position:absolute;top:8px;right:8px;background:rgba(8,11,17,0.75);border:1px solid var(--border2);border-radius:5px;padding:4px 9px;font-size:11px;color:var(--subtle);cursor:pointer;font-family:inherit;transition:all 0.15s}
+.img-preview-name{font-size:11px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%}
+.img-preview-size{font-size:10px;color:rgba(255,255,255,0.55)}
+.img-change-btn{position:absolute;top:8px;right:8px;background:rgba(7,9,15,0.7);border:1px solid var(--border2);border-radius:5px;padding:3px 8px;font-size:10px;color:var(--subtle);cursor:pointer;font-family:inherit;transition:all var(--transition)}
 .img-change-btn:hover{color:var(--text);border-color:var(--border2)}
 
-/* FILE CHOSEN */
-.file-chip{display:none;align-items:center;gap:8px;font-size:12px;color:var(--success);margin-top:8px;padding:7px 11px;background:var(--success-dim);border-radius:var(--rxs);border:1px solid rgba(32,223,168,0.15)}
-.file-chip svg{width:14px;height:14px;stroke:var(--success);flex-shrink:0}
+/* FILE CHIP */
+.file-chip{display:none;align-items:center;gap:7px;font-size:11px;color:var(--success);margin-top:8px;padding:7px 10px;background:var(--success-dim);border-radius:var(--rxs);border:1px solid rgba(16,217,160,0.13)}
+.file-chip svg{width:13px;height:13px;stroke:var(--success);flex-shrink:0}
 .file-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.file-chip .chip-size{margin-left:auto;flex-shrink:0;font-size:11px;color:rgba(32,223,168,0.7)}
+.file-chip .chip-size{margin-left:auto;flex-shrink:0;font-size:10px;color:rgba(16,217,160,0.6)}
 
 /* PASSWORD */
 .pw-wrap{position:relative}
-.pw-wrap input{padding-right:42px}
-.pw-eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;display:flex;transition:color 0.15s}
+.pw-wrap input{padding-right:40px}
+.pw-eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;display:flex;transition:color var(--transition)}
 .pw-eye:hover{color:var(--subtle)}
-.pw-eye svg{width:15px;height:15px;stroke:currentColor}
+.pw-eye svg{width:14px;height:14px;stroke:currentColor}
 
-/* STRENGTH METER */
-.strength-wrap{margin-top:8px}
-.strength-bar{height:3px;border-radius:2px;background:var(--border2);overflow:hidden;margin-bottom:5px}
-.strength-fill{height:100%;border-radius:2px;transition:width 0.3s ease,background 0.3s ease;width:0}
-.strength-label{font-size:11px;color:var(--muted)}
+/* STRENGTH */
+.strength-wrap{margin-top:7px}
+.strength-bar{height:2px;border-radius:2px;background:var(--border2);overflow:hidden;margin-bottom:4px}
+.strength-fill{height:100%;border-radius:2px;transition:width 0.35s ease,background 0.35s ease;width:0}
+.strength-label{font-size:10px;color:var(--muted)}
 
-/* PASSWORD MATCH */
-.pw-match{font-size:11px;margin-top:5px;display:none}
-.pw-match.ok{color:var(--success);display:flex;align-items:center;gap:4px}
-.pw-match.bad{color:var(--danger);display:flex;align-items:center;gap:4px}
+/* MATCH */
+.pw-match{font-size:10px;margin-top:4px;display:none}
+.pw-match.ok{color:var(--success);display:flex;align-items:center;gap:3px}
+.pw-match.bad{color:var(--danger);display:flex;align-items:center;gap:3px}
 
 /* BTN */
-.btn{width:100%;padding:12px;font-size:13px;font-weight:600;border:none;border-radius:var(--rs);cursor:pointer;transition:all 0.18s;display:flex;align-items:center;justify-content:center;gap:7px;letter-spacing:0.01em;margin-top:20px;font-family:inherit}
-.btn-primary{background:var(--accent);color:#fff;box-shadow:0 4px 16px rgba(124,111,255,0.3)}
-.btn-primary:hover:not(:disabled){filter:brightness(1.12);transform:translateY(-1px);box-shadow:0 6px 22px rgba(124,111,255,0.4)}
-.btn-primary:active:not(:disabled){transform:translateY(0);filter:brightness(0.95)}
-.btn-primary:disabled{opacity:0.4;cursor:not-allowed;transform:none;filter:none;box-shadow:none}
-.btn svg{width:15px;height:15px;flex-shrink:0}
-
-/* PROGRESS */
-.progress-wrap{display:none;margin-top:16px}
-.progress-bar{height:4px;border-radius:2px;background:var(--border2);overflow:hidden;margin-bottom:6px}
-.progress-fill{height:100%;border-radius:2px;background:var(--accent);transition:width 0.4s ease}
-.progress-label{font-size:11px;color:var(--muted);text-align:center}
+.btn{width:100%;padding:11px;font-size:13px;font-weight:600;border:none;border-radius:var(--rs);cursor:pointer;transition:all var(--transition);display:flex;align-items:center;justify-content:center;gap:6px;letter-spacing:0.01em;margin-top:18px;font-family:inherit}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#8b7ff8);color:#fff;box-shadow:0 4px 18px rgba(108,99,255,0.28)}
+.btn-primary:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px);box-shadow:0 6px 24px rgba(108,99,255,0.38)}
+.btn-primary:active:not(:disabled){transform:translateY(0);filter:brightness(0.96)}
+.btn-primary:disabled{opacity:0.38;cursor:not-allowed;transform:none;filter:none;box-shadow:none}
+.btn svg{width:14px;height:14px;flex-shrink:0}
 
 /* SPINNER */
-.spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,0.25);border-top-color:#fff;border-radius:50%;animation:spin 0.65s linear infinite;flex-shrink:0}
+.spinner{width:13px;height:13px;border:2px solid rgba(255,255,255,0.22);border-top-color:#fff;border-radius:50%;animation:spin 0.65s linear infinite;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* STATUS */
-.status{display:none;margin-top:16px;padding:14px 16px;border-radius:var(--rs);font-size:13px;border:1px solid transparent;animation:fadeUp 0.3s ease}
-.status.show{display:flex;align-items:flex-start;gap:10px}
-.status svg{width:15px;height:15px;flex-shrink:0;margin-top:1px}
-.status.ok{background:var(--success-dim);border-color:rgba(32,223,168,0.2);color:var(--success)}
-.status.err{background:var(--danger-dim);border-color:rgba(240,96,96,0.2);color:var(--danger)}
-.status.warn-box{background:var(--warn-dim);border-color:rgba(245,158,11,0.2);color:var(--warn)}
+/* PROGRESS */
+.progress-wrap{display:none;margin-top:14px}
+.progress-bar{height:3px;border-radius:2px;background:var(--border2);overflow:hidden;margin-bottom:5px}
+.progress-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width 0.4s ease}
+.progress-label{font-size:10px;color:var(--muted);text-align:center}
+
+/* ====== RESULT CARD — the big visual after encode ====== */
+.result-card{display:none;margin-top:12px;background:var(--card);border:1px solid rgba(16,217,160,0.2);border-radius:var(--r);overflow:hidden;animation:fadeUp 0.4s ease}
+.result-card.show{display:block}
+.result-img-wrap{position:relative;background:#0a0d16}
+.result-img-wrap img{width:100%;max-height:260px;object-fit:contain;display:block}
+.result-badge{position:absolute;top:10px;left:10px;display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:var(--success);background:rgba(7,9,15,0.82);border:1px solid rgba(16,217,160,0.25);padding:4px 10px;border-radius:20px;backdrop-filter:blur(6px);letter-spacing:0.05em;text-transform:uppercase}
+.result-badge svg{width:11px;height:11px;stroke:currentColor}
+.result-footer{padding:14px 16px;background:var(--card2);border-top:1px solid var(--border)}
+.result-meta{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.result-icon{width:32px;height:32px;background:var(--success-dim);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.result-icon svg{width:15px;height:15px;stroke:var(--success)}
+.result-meta-text{flex:1}
+.result-meta-title{font-size:12px;font-weight:600;color:var(--text)}
+.result-meta-sub{font-size:10px;color:var(--muted)}
+
+/* SHARE BUTTON — iPhone-style share row */
+.share-row{display:flex;gap:8px}
+.share-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:9px 12px;border-radius:var(--rxs);font-size:11px;font-weight:600;cursor:pointer;transition:all var(--transition);font-family:inherit;border:none;letter-spacing:0.01em;white-space:nowrap}
+.share-btn-main{background:var(--success);color:#05201a;flex:2}
+.share-btn-main:hover{filter:brightness(1.08)}
+.share-btn-main svg{width:14px;height:14px;stroke:currentColor;flex-shrink:0}
+.share-btn-alt{background:var(--card);border:1px solid var(--border2);color:var(--subtle);flex:1}
+.share-btn-alt:hover{color:var(--text);border-color:var(--border2);background:rgba(255,255,255,0.05)}
+.share-btn-alt svg{width:13px;height:13px;stroke:currentColor;flex-shrink:0}
+
+/* STATUS (errors/warn only now) */
+.status{display:none;margin-top:12px;padding:12px 14px;border-radius:var(--rs);font-size:12px;border:1px solid transparent;animation:fadeUp 0.3s ease}
+.status.show{display:flex;align-items:flex-start;gap:9px}
+.status svg{width:14px;height:14px;flex-shrink:0;margin-top:1px}
+.status.err{background:var(--danger-dim);border-color:rgba(240,92,92,0.18);color:var(--danger)}
+.status.warn-box{background:var(--warn-dim);border-color:rgba(245,158,11,0.18);color:var(--warn)}
 .status-body{flex:1}
-.status-title{font-weight:700;margin-bottom:3px}
-.status-msg{opacity:0.85;line-height:1.5}
+.status-title{font-weight:700;margin-bottom:2px}
+.status-msg{opacity:0.8;line-height:1.5}
 
-/* EXTRACTED MSG BOX */
-.msg-reveal{display:none;margin-top:12px;padding:14px;background:var(--card2);border:1px solid var(--border2);border-radius:var(--rs);font-size:13px;color:var(--text);line-height:1.6;white-space:pre-wrap;word-break:break-word;max-height:200px;overflow-y:auto;font-family:inherit}
-.msg-reveal.show{display:block}
+/* EXTRACT RESULT */
+.extract-result{display:none;margin-top:12px;background:var(--card);border:1px solid rgba(16,217,160,0.18);border-radius:var(--r);overflow:hidden;animation:fadeUp 0.4s ease}
+.extract-result.show{display:block}
+.extract-result-hdr{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--success-dim);border-bottom:1px solid rgba(16,217,160,0.12)}
+.extract-result-hdr svg{width:16px;height:16px;stroke:var(--success);flex-shrink:0}
+.extract-result-hdr-text{flex:1}
+.extract-result-hdr-title{font-size:12px;font-weight:700;color:var(--success)}
+.extract-result-hdr-sub{font-size:10px;color:rgba(16,217,160,0.6)}
+.extract-body{padding:14px 16px}
+.msg-reveal{font-size:12px;color:var(--text);line-height:1.7;white-space:pre-wrap;word-break:break-word;max-height:200px;overflow-y:auto;font-family:inherit;background:var(--surface);border:1px solid var(--border);border-radius:var(--rxs);padding:12px;margin-bottom:10px}
+.extract-actions{display:flex;gap:8px}
 
-/* DOWNLOAD BTN */
-.btn-dl{display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:7px 13px;background:var(--success);color:#06271e;font-size:12px;font-weight:700;border-radius:var(--rxs);text-decoration:none;border:none;cursor:pointer;letter-spacing:0.02em;transition:filter 0.15s}
-.btn-dl:hover{filter:brightness(1.08)}
-.btn-dl svg{width:13px;height:13px;stroke:currentColor}
+/* PAYLOAD SECTIONS */
+.payload-section{display:none}.payload-section.active{display:block}
 
 /* FOOTER */
-footer{border-top:1px solid var(--border);text-align:center;padding:24px 2rem;font-size:12px;color:var(--muted)}
-footer a{color:var(--accent);text-decoration:none}
+footer{border-top:1px solid var(--border);text-align:center;padding:22px 2rem;font-size:11px;color:var(--muted)}
+footer a{color:var(--accent);text-decoration:none;opacity:0.7}
+footer a:hover{opacity:1}
 
-@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-@media(max-width:600px){
+@media(max-width:580px){
   .steps{grid-template-columns:1fr}
-  .card{padding:18px}
+  .card{padding:16px}
   .field-row{grid-template-columns:1fr}
-  .hero{padding:36px 1rem 28px}
+  .hero{padding:36px 1rem 24px}
+  .share-row{flex-direction:column}
+  .share-btn{flex:auto}
+  nav{padding:0 1rem}
 }
 </style>
 </head>
 <body>
-<canvas id="bg-canvas"></canvas>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
 <div class="page-content">
 
 <!-- NAV -->
@@ -215,25 +251,22 @@ footer a{color:var(--accent);text-decoration:none}
     <div class="logo-mark">
       <svg viewBox="0 0 24 24"><path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1Z"/></svg>
     </div>
-    Hifi-Vault
+    HifiVault
   </a>
   <div class="nav-right">
-    <div class="nav-status">
-      <div class="pulse-dot"></div>
-      
-    </div>
-    <span class="nav-pill">Steganography</span>
+    <div class="nav-dot"><div class="live-dot"></div>Client-side</div>
+    <span class="nav-badge">Steganography</span>
   </div>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-tag">
-    <svg viewBox="0 0 16 16" fill="none" width="11" height="11" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="12" height="8" rx="1.5"/><path d="M5 6V4a3 3 0 016 0v2"/></svg>
-    End-to-end encrypted
+  <div class="hero-eyebrow">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="12" height="8" rx="1.5"/><path d="M5 6V4a3 3 0 016 0v2"/></svg>
+    AES-256 · LSB Steganography
   </div>
-  <h1>Hide files & messages<br><span class="hl">inside plain images.</span></h1>
-  <p>Upload a cover image, attach a file or type a secret message, set a password — HifiVault encrypts and embeds it invisibly using steganography.</p>
+  <h1>Hide secrets<br><span class="hl">inside plain images.</span></h1>
+  <p class="hero-sub">Encrypt any file or message, then embed it invisibly into an image. Only the right password can ever reveal it.</p>
 </section>
 
 <!-- STEPS -->
@@ -241,29 +274,29 @@ footer a{color:var(--accent);text-decoration:none}
   <div class="step">
     <div class="step-n">1</div>
     <h3>Pick a cover image</h3>
-    <p>Any PNG or JPG. Larger images hold bigger payloads without quality loss.</p>
+    <p>PNG, JPG, or WEBP. Larger images hold bigger payloads.</p>
   </div>
   <div class="step">
     <div class="step-n">2</div>
     <h3>Add your secret</h3>
-    <p>Attach a file or type a message — both are encrypted before embedding.</p>
+    <p>A file or typed message — both encrypted before embedding.</p>
   </div>
   <div class="step">
     <div class="step-n">3</div>
     <h3>Set a password</h3>
-    <p>AES-256 encrypts your data. Only the right password can unlock it.</p>
+    <p>AES-256 locks it. Only that password can unlock it.</p>
   </div>
 </div>
 
 <!-- TOOL -->
 <div class="wrap">
   <div class="tabs">
-    <button class="tab-btn active" data-tab="hide" onclick="switchTab('hide')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+    <button class="tab-btn active" onclick="switchTab('hide')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       Hide / Encode
     </button>
-    <button class="tab-btn" data-tab="extract" onclick="switchTab('extract')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="M11 8v6M8 11h6"/></svg>
+    <button class="tab-btn" onclick="switchTab('extract')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       Reveal / Decode
     </button>
   </div>
@@ -274,7 +307,7 @@ footer a{color:var(--accent);text-decoration:none}
     <!-- COVER IMAGE -->
     <div class="card">
       <div class="card-hdr">
-        <div class="card-title">
+        <div class="card-label">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
           Cover image
         </div>
@@ -307,7 +340,7 @@ footer a{color:var(--accent);text-decoration:none}
     <!-- SECRET PAYLOAD -->
     <div class="card">
       <div class="card-hdr">
-        <div class="card-title">
+        <div class="card-label">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
           Secret payload
         </div>
@@ -323,7 +356,6 @@ footer a{color:var(--accent);text-decoration:none}
         </div>
       </div>
 
-      <!-- File upload section -->
       <div class="payload-section active" id="ps-file">
         <div class="field">
           <label>Select the file to embed inside the image</label>
@@ -336,7 +368,7 @@ footer a{color:var(--accent);text-decoration:none}
               <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor"/><polyline points="14 2 14 8 20 8" stroke="currentColor"/></svg>
             </div>
             <p class="dz-title">Drop any file here or click to browse</p>
-            <p class="dz-hint">Any file type — document, archive, image, code…</p>
+            <p class="dz-hint">Document, archive, image, code — anything</p>
           </div>
           <div class="file-chip" id="secret-chip">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="20 6 9 17 4 12" stroke="currentColor"/></svg>
@@ -346,17 +378,14 @@ footer a{color:var(--accent);text-decoration:none}
         </div>
       </div>
 
-      <!-- Message section -->
       <div class="payload-section" id="ps-msg">
         <div class="field">
           <div class="label-row">
             <label>Type your secret message</label>
             <span class="char-count" id="msg-count">0 / 2000</span>
           </div>
-          <div class="textarea-wrap">
-            <textarea id="secret-msg" placeholder="Write anything — only the password holder can ever read this…" maxlength="2000" oninput="msgInput()"></textarea>
-          </div>
-          <div style="font-size:11px;color:var(--muted);margin-top:6px">Your message will be encrypted and embedded as a .txt file.</div>
+          <textarea id="secret-msg" placeholder="Write anything — only the password holder can ever read this…" maxlength="2000" oninput="msgInput()"></textarea>
+          <div style="font-size:10px;color:var(--muted);margin-top:5px">Encrypted and embedded as a .txt file.</div>
         </div>
       </div>
     </div>
@@ -364,7 +393,7 @@ footer a{color:var(--accent);text-decoration:none}
     <!-- PASSWORD -->
     <div class="card">
       <div class="card-hdr">
-        <div class="card-title">
+        <div class="card-label">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
           Encryption password
         </div>
@@ -373,8 +402,8 @@ footer a{color:var(--accent);text-decoration:none}
         <div class="field" style="margin-bottom:0">
           <label>Password</label>
           <div class="pw-wrap">
-            <input type="password" id="hide-pw" placeholder="Enter a strong password…" oninput="pwStrength();checkMatch()">
-            <button class="pw-eye" onclick="togglePw('hide-pw',this)" type="button" aria-label="Toggle password visibility">
+            <input type="password" id="hide-pw" placeholder="Strong password…" oninput="pwStrength();checkMatch()">
+            <button class="pw-eye" onclick="togglePw('hide-pw',this)" type="button">
               <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor"/><circle cx="12" cy="12" r="3" stroke="currentColor"/></svg>
             </button>
           </div>
@@ -386,8 +415,8 @@ footer a{color:var(--accent);text-decoration:none}
         <div class="field" style="margin-bottom:0">
           <label>Confirm password</label>
           <div class="pw-wrap">
-            <input type="password" id="hide-pw2" placeholder="Repeat password…" oninput="checkMatch()">
-            <button class="pw-eye" onclick="togglePw('hide-pw2',this)" type="button" aria-label="Toggle password visibility">
+            <input type="password" id="hide-pw2" placeholder="Repeat…" oninput="checkMatch()">
+            <button class="pw-eye" onclick="togglePw('hide-pw2',this)" type="button">
               <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor"/><circle cx="12" cy="12" r="3" stroke="currentColor"/></svg>
             </button>
           </div>
@@ -406,15 +435,48 @@ footer a{color:var(--accent);text-decoration:none}
       </div>
     </div>
 
+    <!-- ERROR STATUS (errors only) -->
     <div class="status" id="hide-status">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       <div class="status-body">
         <div class="status-title" id="hide-st"></div>
         <div class="status-msg" id="hide-sm"></div>
-        <a id="hide-dl" href="#" class="btn-dl" download="hidden_file.png" style="display:none">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor"/><polyline points="7 10 12 15 17 10" stroke="currentColor"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor"/></svg>
-          Download stego image
-        </a>
+      </div>
+    </div>
+
+    <!-- RESULT PREVIEW — shown after successful encode -->
+    <div class="result-card" id="hide-result">
+      <div class="result-img-wrap">
+        <img id="result-img" src="" alt="Stego image">
+        <div class="result-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="20 6 9 17 4 12" stroke="currentColor"/></svg>
+          Encrypted
+        </div>
+      </div>
+      <div class="result-footer">
+        <div class="result-meta">
+          <div class="result-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor"/></svg>
+          </div>
+          <div class="result-meta-text">
+            <div class="result-meta-title">Payload hidden successfully</div>
+            <div class="result-meta-sub" id="result-meta-sub">Ready to share or download</div>
+          </div>
+        </div>
+        <div class="share-row">
+          <button class="share-btn share-btn-main" id="share-main-btn" onclick="doShare()">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8" stroke="currentColor"/><polyline points="16 6 12 2 8 6" stroke="currentColor"/><line x1="12" y1="2" x2="12" y2="15" stroke="currentColor"/></svg>
+            Share image
+          </button>
+          <button class="share-btn share-btn-alt" onclick="doDownload()">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor"/><polyline points="7 10 12 15 17 10" stroke="currentColor"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor"/></svg>
+            Download
+          </button>
+          <button class="share-btn share-btn-alt" onclick="doCopyLink()" id="copy-link-btn" style="display:none">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="currentColor"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="currentColor"/></svg>
+            Copy URL
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -423,7 +485,7 @@ footer a{color:var(--accent);text-decoration:none}
   <div class="panel" id="panel-extract">
     <div class="card">
       <div class="card-hdr">
-        <div class="card-title">
+        <div class="card-label">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
           Stego image
         </div>
@@ -455,16 +517,16 @@ footer a{color:var(--accent);text-decoration:none}
 
     <div class="card">
       <div class="card-hdr">
-        <div class="card-title">
+        <div class="card-label">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
           Decryption password
         </div>
       </div>
       <div class="field">
-        <label>The password used when the payload was hidden</label>
+        <label>The password set when the payload was hidden</label>
         <div class="pw-wrap">
-          <input type="password" id="extract-pw" placeholder="Enter password…">
-          <button class="pw-eye" onclick="togglePw('extract-pw',this)" type="button" aria-label="Toggle password visibility">
+          <input type="password" id="extract-pw" placeholder="Enter password…" onkeydown="if(event.key==='Enter')submitExtract()">
+          <button class="pw-eye" onclick="togglePw('extract-pw',this)" type="button">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor"/><circle cx="12" cy="12" r="3" stroke="currentColor"/></svg>
           </button>
         </div>
@@ -481,443 +543,434 @@ footer a{color:var(--accent);text-decoration:none}
       </div>
     </div>
 
+    <!-- ERROR STATUS -->
     <div class="status" id="extract-status">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       <div class="status-body">
         <div class="status-title" id="extract-st"></div>
         <div class="status-msg" id="extract-sm"></div>
-        <pre class="msg-reveal" id="extracted-msg"></pre>
-        <button id="copy-msg-btn" onclick="copyMsg()" style="display:none;margin-top:8px" class="btn-dl">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor"/></svg>
-          Copy message
-        </button>
-        <a id="extract-dl" href="#" class="btn-dl" style="display:none;margin-left:8px">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor"/><polyline points="7 10 12 15 17 10" stroke="currentColor"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor"/></svg>
-          Download file
-        </a>
+      </div>
+    </div>
+
+    <!-- EXTRACT RESULT -->
+    <div class="extract-result" id="extract-result">
+      <div class="extract-result-hdr">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="20 6 9 17 4 12" stroke="currentColor"/></svg>
+        <div class="extract-result-hdr-text">
+          <div class="extract-result-hdr-title">Payload recovered</div>
+          <div class="extract-result-hdr-sub" id="extract-result-sub">Decrypted successfully</div>
+        </div>
+      </div>
+      <div class="extract-body">
+        <pre class="msg-reveal" id="extracted-msg" style="display:none"></pre>
+        <div class="extract-actions">
+          <button class="share-btn share-btn-main" id="extract-share-btn" onclick="doExtractShare()" style="display:none">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8" stroke="currentColor"/><polyline points="16 6 12 2 8 6" stroke="currentColor"/><line x1="12" y1="2" x2="12" y2="15" stroke="currentColor"/></svg>
+            Share file
+          </button>
+          <button class="share-btn share-btn-alt" id="extract-dl-btn" onclick="doExtractDownload()" style="display:none">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor"/><polyline points="7 10 12 15 17 10" stroke="currentColor"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor"/></svg>
+            Download
+          </button>
+          <button class="share-btn share-btn-alt" id="copy-msg-btn" onclick="copyMsg()" style="display:none">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor"/></svg>
+            Copy
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
 <footer>
-  HifiVault — all processing happens on your server &nbsp;·&nbsp; <a href="#">AES-256 + LSB steganography</a>
+  HifiVault &nbsp;·&nbsp; Processing on your server &nbsp;·&nbsp; <a href="#">AES-256 + LSB steganography</a>
 </footer>
 </div>
 
 <script>
-/* ---- CONFIG ---- */
 const API = 'https://hifivault-backend.onrender.com';
 
-/* ---- CANVAS PARTICLES ---- */
-(function(){
-  const c=document.getElementById('bg-canvas');
-  const ctx=c.getContext('2d');
-  let W,H,pts=[];
-  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;pts=[];for(let i=0;i<55;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-0.5)*0.25,vy:(Math.random()-0.5)*0.25,r:Math.random()*1.5+0.5})}
-  window.addEventListener('resize',resize);resize();
-  function draw(){
-    ctx.clearRect(0,0,W,H);
-    for(let i=0;i<pts.length;i++){
-      const p=pts[i];
-      p.x+=p.vx;p.y+=p.vy;
-      if(p.x<0||p.x>W)p.vx*=-1;
-      if(p.y<0||p.y>H)p.vy*=-1;
-      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle='rgba(124,111,255,0.55)';ctx.fill();
-      for(let j=i+1;j<pts.length;j++){
-        const q=pts[j];
-        const d=Math.hypot(p.x-q.x,p.y-q.y);
-        if(d<130){
-          ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);
-          ctx.strokeStyle=`rgba(124,111,255,${0.08*(1-d/130)})`;
-          ctx.lineWidth=0.6;ctx.stroke()
-        }
-      }
-    }
-    requestAnimationFrame(draw)
-  }
-  draw();
-})();
+/* ---- State ---- */
+let payloadMode = 'file';
+let lastStegoUrl = null;
+let lastStegoFilename = 'hifivault-stego.png';
+let extractedFileUrl = null;
+let extractedFilename = null;
 
-/* ---- TAB SWITCH ---- */
-function switchTab(t){
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.querySelector(`[data-tab="${t}"]`).classList.add('active');
-  document.getElementById('panel-'+t).classList.add('active');
+/* ---- Tab switch ---- */
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0) === (tab==='hide')));
+  document.getElementById('panel-hide').classList.toggle('active', tab==='hide');
+  document.getElementById('panel-extract').classList.toggle('active', tab==='extract');
 }
 
-/* ---- PAYLOAD TOGGLE ---- */
-let payloadMode='file';
-function setPayload(m){
-  payloadMode=m;
-  document.getElementById('pt-file').classList.toggle('active',m==='file');
-  document.getElementById('pt-msg').classList.toggle('active',m==='msg');
-  document.getElementById('ps-file').classList.toggle('active',m==='file');
-  document.getElementById('ps-msg').classList.toggle('active',m==='msg');
+/* ---- Payload mode ---- */
+function setPayload(m) {
+  payloadMode = m;
+  document.getElementById('pt-file').classList.toggle('active', m==='file');
+  document.getElementById('pt-msg').classList.toggle('active', m==='msg');
+  document.getElementById('ps-file').classList.toggle('active', m==='file');
+  document.getElementById('ps-msg').classList.toggle('active', m==='msg');
 }
 
-/* ---- DRAG AND DROP ---- */
-function dzOver(e,id){e.preventDefault();document.getElementById(id).classList.add('over')}
-function dzOut(id){document.getElementById(id).classList.remove('over')}
-function dzDrop(e,id,inputId,cb){
-  e.preventDefault();dzOut(id);
-  const dt=e.dataTransfer;
-  if(dt.files.length){
-    const input=document.getElementById(inputId);
-    try{const transfer=new DataTransfer();transfer.items.add(dt.files[0]);input.files=transfer.files;}catch(err){console.warn(err)}
-    cb();
-  }
+/* ---- Helpers ---- */
+function fmtSize(b) {
+  if(b<1024) return b+' B';
+  if(b<1048576) return (b/1024).toFixed(1)+' KB';
+  return (b/1048576).toFixed(1)+' MB';
 }
 
-/* ---- COVER IMAGE ---- */
-function coverChosen(){
-  const f=document.getElementById('cover-file').files[0];
-  if(!f)return;
-  const url=URL.createObjectURL(f);
-  document.getElementById('cover-preview-img').src=url;
-  document.getElementById('cover-preview-name').textContent=f.name;
-  document.getElementById('cover-preview-size').textContent=fmtSize(f.size);
-  document.getElementById('cover-preview-wrap').style.display='block';
-  document.getElementById('dz-cover').style.display='none';
-}
-function resetCover(){
-  document.getElementById('cover-file').value='';
-  document.getElementById('cover-preview-wrap').style.display='none';
-  document.getElementById('dz-cover').style.display='block';
+function setBtn(id, loading, label, icon) {
+  const btn = document.getElementById(id);
+  btn.disabled = loading;
+  btn.innerHTML = loading
+    ? `<div class="spinner"></div> Processing…`
+    : `${icon} ${label}`;
 }
 
-/* ---- SECRET FILE ---- */
-function secretChosen(){
-  const f=document.getElementById('secret-file').files[0];
-  if(!f)return;
-  document.getElementById('secret-name').textContent=f.name;
-  document.getElementById('secret-size').textContent=fmtSize(f.size);
-  document.getElementById('secret-chip').style.display='flex';
+function showError(statusId, titleId, msgId, title, msg) {
+  const box = document.getElementById(statusId);
+  box.className = 'status err show';
+  document.getElementById(titleId).textContent = title;
+  document.getElementById(msgId).textContent = msg;
 }
 
-/* ---- STEGO IMAGE ---- */
-function stegoChosen(){
-  const f=document.getElementById('stego-file').files[0];
-  if(!f)return;
-  const url=URL.createObjectURL(f);
-  document.getElementById('stego-preview-img').src=url;
-  document.getElementById('stego-preview-name').textContent=f.name;
-  document.getElementById('stego-preview-size').textContent=fmtSize(f.size);
-  document.getElementById('stego-preview-wrap').style.display='block';
-  document.getElementById('dz-stego').style.display='none';
-}
-function resetStego(){
-  document.getElementById('stego-file').value='';
-  document.getElementById('stego-preview-wrap').style.display='none';
-  document.getElementById('dz-stego').style.display='block';
+function hideStatus(id) {
+  document.getElementById(id).className = 'status';
 }
 
-/* ---- MSG COUNTER ---- */
-function msgInput(){
-  const val=document.getElementById('secret-msg').value.length;
-  const el=document.getElementById('msg-count');
-  el.textContent=val+' / 2000';
-  el.className='char-count'+(val>1800?' warn':'')+(val>=2000?' over':'');
+/* ---- Drag & drop ---- */
+function dzOver(e, id) { e.preventDefault(); document.getElementById(id).classList.add('over'); }
+function dzOut(id) { document.getElementById(id).classList.remove('over'); }
+function dzDrop(e, id, inputId, cb) {
+  e.preventDefault(); dzOut(id);
+  const input = document.getElementById(inputId);
+  if(e.dataTransfer.files.length){ input.files = e.dataTransfer.files; cb(); }
 }
 
-/* ---- PASSWORD STRENGTH ---- */
-function pwStrength(){
-  const pw=document.getElementById('hide-pw').value;
-  const fill=document.getElementById('strength-fill');
-  const label=document.getElementById('strength-label');
-  if(!pw){fill.style.width='0%';fill.style.background='';label.textContent='Enter a password';return}
-  let score=0;
-  if(pw.length>=8)score++;if(pw.length>=12)score++;
-  if(/[A-Z]/.test(pw))score++;if(/[0-9]/.test(pw))score++;if(/[^A-Za-z0-9]/.test(pw))score++;
-  const levels=[
-    {w:'20%',bg:'#f06060',t:'Very weak'},
-    {w:'40%',bg:'#f59e0b',t:'Weak'},
-    {w:'60%',bg:'#eab308',t:'Fair'},
-    {w:'80%',bg:'#84cc16',t:'Strong'},
-    {w:'100%',bg:'#20dfa8',t:'Very strong'}
+/* ---- Cover image ---- */
+function coverChosen() {
+  const f = document.getElementById('cover-file').files[0];
+  if(!f) return;
+  const url = URL.createObjectURL(f);
+  document.getElementById('cover-preview-img').src = url;
+  document.getElementById('cover-preview-name').textContent = f.name;
+  document.getElementById('cover-preview-size').textContent = fmtSize(f.size);
+  document.getElementById('cover-preview-wrap').style.display = 'block';
+  document.getElementById('dz-cover').style.display = 'none';
+}
+function resetCover() {
+  document.getElementById('cover-file').value = '';
+  document.getElementById('cover-preview-wrap').style.display = 'none';
+  document.getElementById('dz-cover').style.display = 'block';
+}
+
+/* ---- Secret file ---- */
+function secretChosen() {
+  const f = document.getElementById('secret-file').files[0];
+  if(!f) return;
+  document.getElementById('secret-name').textContent = f.name;
+  document.getElementById('secret-size').textContent = fmtSize(f.size);
+  document.getElementById('secret-chip').style.display = 'flex';
+}
+
+/* ---- Stego image ---- */
+function stegoChosen() {
+  const f = document.getElementById('stego-file').files[0];
+  if(!f) return;
+  const url = URL.createObjectURL(f);
+  document.getElementById('stego-preview-img').src = url;
+  document.getElementById('stego-preview-name').textContent = f.name;
+  document.getElementById('stego-preview-size').textContent = fmtSize(f.size);
+  document.getElementById('stego-preview-wrap').style.display = 'block';
+  document.getElementById('dz-stego').style.display = 'none';
+}
+function resetStego() {
+  document.getElementById('stego-file').value = '';
+  document.getElementById('stego-preview-wrap').style.display = 'none';
+  document.getElementById('dz-stego').style.display = 'block';
+}
+
+/* ---- Char count ---- */
+function msgInput() {
+  const len = document.getElementById('secret-msg').value.length;
+  const el = document.getElementById('msg-count');
+  el.textContent = len + ' / 2000';
+  el.className = 'char-count' + (len > 1800 ? (len >= 2000 ? ' over' : ' warn') : '');
+}
+
+/* ---- Password strength ---- */
+function pwStrength() {
+  const pw = document.getElementById('hide-pw').value;
+  const fill = document.getElementById('strength-fill');
+  const label = document.getElementById('strength-label');
+  let score = 0;
+  if(pw.length >= 8) score++;
+  if(pw.length >= 12) score++;
+  if(/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+  if(/[0-9]/.test(pw)) score++;
+  if(/[^A-Za-z0-9]/.test(pw)) score++;
+  const map = [
+    {w:'0%', bg:'transparent', t:'Enter a password'},
+    {w:'25%', bg:'#f05c5c', t:'Weak'},
+    {w:'50%', bg:'#f59e0b', t:'Fair'},
+    {w:'75%', bg:'#a78bfa', t:'Good'},
+    {w:'90%', bg:'#10d9a0', t:'Strong'},
+    {w:'100%', bg:'#10d9a0', t:'Very strong'},
   ];
-  const l=levels[Math.min(score,4)];
-  fill.style.width=l.w;fill.style.background=l.bg;label.textContent=l.t;
-  label.style.color=l.bg;
+  const s = Math.min(score, 5);
+  fill.style.width = map[s].w;
+  fill.style.background = map[s].bg;
+  label.textContent = map[s].t;
+  label.style.color = s === 0 ? 'var(--muted)' : map[s].bg;
 }
 
-/* ---- PASSWORD MATCH ---- */
-function checkMatch(){
-  const pw=document.getElementById('hide-pw').value;
-  const pw2=document.getElementById('hide-pw2').value;
-  const el=document.getElementById('pw-match');
-  if(!pw2){el.className='pw-match';return}
-  if(pw===pw2){
+function checkMatch() {
+  const pw = document.getElementById('hide-pw').value;
+  const pw2 = document.getElementById('hide-pw2').value;
+  const el = document.getElementById('pw-match');
+  if(!pw2){ el.className='pw-match'; return; }
+  if(pw === pw2){
     el.className='pw-match ok';
-    el.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><polyline points="20 6 9 17 4 12"/></svg> Passwords match';
-  }else{
+    el.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><polyline points="20 6 9 17 4 12"/></svg> Matches';
+  } else {
     el.className='pw-match bad';
-    el.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18" stroke="currentColor"/><line x1="6" y1="6" x2="18" y2="18" stroke="currentColor"/></svg> Passwords do not match';
+    el.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Doesn\'t match';
   }
 }
 
-/* ---- TOGGLE PW VISIBILITY ---- */
-function togglePw(id,btn){
-  const inp=document.getElementById(id);
-  inp.type=inp.type==='password'?'text':'password';
-  const svgs=btn.querySelectorAll('svg');
-  if(inp.type==='text'){
-    svgs[0].innerHTML='<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" stroke="currentColor"/><line x1="1" y1="1" x2="23" y2="23" stroke="currentColor"/>';
-  }else{
-    svgs[0].innerHTML='<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor"/><circle cx="12" cy="12" r="3" stroke="currentColor"/>';
-  }
+/* ---- Toggle password visibility ---- */
+function togglePw(id, btn) {
+  const inp = document.getElementById(id);
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.querySelector('svg').innerHTML = show
+    ? `<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" stroke="currentColor"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" stroke="currentColor"/><line x1="1" y1="1" x2="23" y2="23" stroke="currentColor"/>`
+    : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor"/><circle cx="12" cy="12" r="3" stroke="currentColor"/>`;
 }
 
-/* ---- PROGRESS SIMULATION ---- */
-function animateProgress(fillId, labelId, steps, cb){
-  let i=0;
-  const fill=document.getElementById(fillId);
-  const label=document.getElementById(labelId);
-  function next(){
-    if(i>=steps.length){cb();return}
-    fill.style.width=steps[i].pct+'%';
-    label.textContent=steps[i].msg;
-    i++;
-    setTimeout(next, steps[i-1].delay||600);
-  }
-  next();
-}
+/* ===== HIDE (ENCODE) ===== */
+const HIDE_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`;
+const EXT_ICON  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>`;
 
-/* ---- STATUS ---- */
-function showStatus(boxId, type, title, msg){
-  const box=document.getElementById(boxId);
-  box.className='status show '+type;
-  const icon=box.querySelector('svg');
-  if(type==='ok'){
-    icon.innerHTML='<polyline points="20 6 9 17 4 12" stroke="currentColor"/>';
-  }else if(type==='err'){
-    icon.innerHTML='<circle cx="12" cy="12" r="10" stroke="currentColor"/><line x1="12" y1="8" x2="12" y2="12" stroke="currentColor"/><line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor"/>';
-  }else{
-    icon.innerHTML='<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor"/><line x1="12" y1="9" x2="12" y2="13" stroke="currentColor"/><line x1="12" y1="17" x2="12.01" y2="17" stroke="currentColor"/>';
-  }
-  document.getElementById(boxId.replace('status','st')).textContent=title;
-  document.getElementById(boxId.replace('status','sm')).textContent=msg;
-}
+async function submitHide() {
+  const image = document.getElementById('cover-file').files[0];
+  const pw    = document.getElementById('hide-pw').value;
+  const pw2   = document.getElementById('hide-pw2').value;
 
-/* ---- LOADING ---- */
-const HIDE_DEFAULT=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Encrypt &amp; hide`;
-const EXT_DEFAULT=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Decrypt &amp; reveal`;
+  // Validation
+  if(!image) return showError('hide-status','hide-st','hide-sm','No cover image','Select an image first.');
+  if(!pw)    return showError('hide-status','hide-st','hide-sm','No password','Enter a password.');
+  if(pw !== pw2) return showError('hide-status','hide-st','hide-sm','Password mismatch','Both passwords must match.');
 
-function setBtn(id,loading,def){
-  const btn=document.getElementById(id);
-  btn.disabled=loading;
-  btn.innerHTML=loading?'<div class="spinner"></div> Processing…':def;
-}
-
-/* ---- COPY MSG ---- */
-function copyMsg(){
-  const txt=document.getElementById('extracted-msg').textContent;
-  navigator.clipboard.writeText(txt).then(()=>{
-    const btn=document.getElementById('copy-msg-btn');
-    const orig=btn.innerHTML;
-    btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" width="13" height="13"><polyline points="20 6 9 17 4 12" stroke="currentColor"/></svg>Copied!';
-    setTimeout(()=>btn.innerHTML=orig,1800);
-  });
-}
-
-/* ---- FORMAT ---- */
-function fmtSize(bytes){
-  if(bytes<1024)return bytes+' B';
-  if(bytes<1048576)return (bytes/1024).toFixed(1)+' KB';
-  return (bytes/1048576).toFixed(1)+' MB';
-}
-
-/* ---- SUBMIT HIDE ---- */
-async function submitHide(){
-  const image=document.getElementById('cover-file').files[0];
-  const pw=document.getElementById('hide-pw').value;
-  const pw2=document.getElementById('hide-pw2').value;
-
-  if(!image)return showStatus('hide-status','err','No cover image','Select a cover image first.');
-  if(!pw)return showStatus('hide-status','err','No password','Enter a password to encrypt your payload.');
-  if(pw!==pw2)return showStatus('hide-status','err','Passwords do not match','Both password fields must match exactly.');
-
-  let file, filename, filetype;
-  if(payloadMode==='file'){
-    file=document.getElementById('secret-file').files[0];
-    if(!file)return showStatus('hide-status','err','No file selected','Select a file to hide, or switch to Message mode.');
-    filename=file.name; filetype=file.type;
-  }else{
-    const msg=document.getElementById('secret-msg').value.trim();
-    if(!msg)return showStatus('hide-status','err','Empty message','Type a message before encoding.');
-    const blob=new Blob([msg],{type:'text/plain'});
-    file=new File([blob],'secret_message.txt',{type:'text/plain'});
-    filename='secret_message.txt'; filetype='text/plain';
+  let file;
+  if(payloadMode === 'file') {
+    file = document.getElementById('secret-file').files[0];
+    if(!file) return showError('hide-status','hide-st','hide-sm','No file selected','Add a file to embed.');
+  } else {
+    const msg = document.getElementById('secret-msg').value.trim();
+    if(!msg) return showError('hide-status','hide-st','hide-sm','Empty message','Type a secret message.');
+    file = new File([msg], 'secret.txt', {type:'text/plain'});
   }
 
-  setBtn('hide-btn',true,HIDE_DEFAULT);
-  document.getElementById('hide-status').className='status';
-  document.getElementById('hide-dl').style.display='none';
-  document.getElementById('hide-progress').style.display='block';
+  // Clear previous results
+  hideStatus('hide-status');
+  document.getElementById('hide-result').className = 'result-card';
 
-  animateProgress('hide-pf','hide-pl',[
-    {pct:15,msg:'Converting image to PNG…',delay:500},
-    {pct:40,msg:'Encrypting payload…',delay:700},
-    {pct:65,msg:'Embedding into image…',delay:800},
-    {pct:85,msg:'Finalizing…',delay:500},
-  ],async()=>{
-    const fd=new FormData();
-    fd.append('image',image);
-    fd.append('file',file);
-    fd.append('password',pw);
-    try{
-      const res=await fetch(`${API}/api/hide/`,{method:'POST',body:fd});
-      const data=await res.json();
-      document.getElementById('hide-pf').style.width='100%';
-      document.getElementById('hide-pl').textContent='Done!';
-      setTimeout(()=>{
-        document.getElementById('hide-progress').style.display='none';
-        if(!res.ok){
-          showStatus('hide-status','err','Failed',data.error||'Something went wrong.');
-        }else{
-  showStatus('hide-status','ok','Payload hidden!',
-    payloadMode==='msg'
-      ? 'Your message was encrypted and embedded into the image.'
-      : `"${filename}" was encrypted and embedded into the image.`
-  );
+  setBtn('hide-btn', true, '', '');
+  document.getElementById('hide-progress').style.display = 'block';
+  animateProgress('hide-pf','hide-pl', ['Preparing…','Encrypting payload…','Embedding into image…','Finalising…']);
 
-  const dl=document.getElementById('hide-dl');
-  dl.href = data.download;   // backend correct field
-  dl.style.display = 'inline-flex';
+  const fd = new FormData();
+  fd.append('image', image);
+  fd.append('file', file);
+  fd.append('password', pw);
 
-  // RESET UI AFTER SUCCESS
-  setTimeout(() => {
-    resetHideUI();
-  }, 2000);
-}
-        setBtn('hide-btn',false,HIDE_DEFAULT);
-      },400);
-    }catch(e){
-      document.getElementById('hide-progress').style.display='none';
-      showStatus('hide-status','err','Network error','Could not reach the server. Is the backend running?');
-      setBtn('hide-btn',false,HIDE_DEFAULT);
+  try {
+    const res  = await fetch(`${API}/api/hide/`, {method:'POST', body:fd});
+    const data = await res.json();
+
+    document.getElementById('hide-progress').style.display = 'none';
+    clearTimeout(progressTimer);
+
+    if(!res.ok) {
+      showError('hide-status','hide-st','hide-sm','Encryption failed', data.error || 'Server returned an error.');
+      setBtn('hide-btn', false, 'Encrypt & hide', HIDE_ICON);
+      return;
     }
-  });
-}
 
+    // Show result card with image preview
+    lastStegoUrl = data.download;
+    lastStegoFilename = 'hifivault-stego.png';
 
-function resetHideUI(){
-  document.getElementById('cover-file').value = '';
-  document.getElementById('secret-file').value = '';
-  resetCover();
-  document.getElementById('secret-chip').style.display = 'none';
+    document.getElementById('result-img').src = data.download;
+    document.getElementById('result-meta-sub').textContent =
+      `${payloadMode === 'msg' ? 'Message' : file.name} embedded · ${fmtSize(file.size)}`;
 
-  document.getElementById('secret-msg').value = '';
-  msgInput();
-
-  document.getElementById('hide-pw').value = '';
-  document.getElementById('hide-pw2').value = '';
-  document.getElementById('pw-match').className = 'pw-match';
-
-  document.getElementById('hide-status').className = 'status';
-  document.getElementById('hide-dl').style.display = 'none';
-  document.getElementById('hide-progress').style.display = 'none';
-
-  setBtn('hide-btn', false, HIDE_DEFAULT);
-}
-
-/* ---- SUBMIT EXTRACT ---- */
-async function submitExtract(){
-  const image=document.getElementById('stego-file').files[0];
-  const pw=document.getElementById('extract-pw').value;
-
-  if(!image)return showStatus('extract-status','err','No image','Upload the stego image first.');
-  if(!pw)return showStatus('extract-status','err','No password','Enter the decryption password.');
-
-  setBtn('extract-btn',true,EXT_DEFAULT);
-  document.getElementById('extract-status').className='status';
-  document.getElementById('extracted-msg').className='msg-reveal';
-  document.getElementById('copy-msg-btn').style.display='none';
-  document.getElementById('extract-dl').style.display='none';
-  document.getElementById('extract-progress').style.display='block';
-
-  animateProgress('extract-pf','extract-pl',[
-    {pct:20,msg:'Reading image pixels…',delay:500},
-    {pct:50,msg:'Extracting hidden bits…',delay:700},
-    {pct:75,msg:'Decrypting payload…',delay:700},
-    {pct:90,msg:'Almost done…',delay:400},
-  ],async()=>{
-    const fd=new FormData();
-    fd.append('image',image);
-    fd.append('password',pw);
-    try{
-      const res=await fetch(`${API}/api/extract/`,{method:'POST',body:fd});
-      const data=await res.json();
-      document.getElementById('extract-pf').style.width='100%';
-      document.getElementById('extract-pl').textContent='Done!';
-      setTimeout(()=>{
-        document.getElementById('extract-progress').style.display='none';
-        if(!res.ok){
-          showStatus('extract-status','err',
-            data.error==='Wrong password'?'Wrong password':'Extraction failed',
-            data.error||'Something went wrong.');
-        }else{
-          const isMsg=data.filename==='secret_message.txt'||data.filetype==='text/plain';
-          showStatus('extract-status','ok','Payload revealed!',
-            isMsg?'A hidden message was found inside the image:':
-            `Recovered: ${data.filename} (${data.filetype})`);
-          if(isMsg){
-            // fetch the actual text content
-            fetch(data.saved_to).then(r=>r.text()).then(txt=>{
-              const box=document.getElementById('extracted-msg');
-              box.textContent=txt;
-              box.className='msg-reveal show';
-              document.getElementById('copy-msg-btn').style.display='inline-flex';
-            }).catch(()=>{
-              document.getElementById('extract-sm').textContent='Message extracted. Download to read it.';
-              const dl=document.getElementById('extract-dl');
-              dl.href=data.saved_to; dl.download=data.filename; dl.style.display='inline-flex';
-            });
-          }else{
-            const dl=document.getElementById('extract-dl');
-            dl.href=data.saved_to; dl.download=data.filename; dl.style.display='inline-flex';
-          }
-        }
-        setBtn('extract-btn',false,EXT_DEFAULT);
-      },400);
-    }catch(e){
-      document.getElementById('extract-progress').style.display='none';
-      showStatus('extract-status','err','Network error','Could not reach the server. Is the backend running?');
-      setBtn('extract-btn',false,EXT_DEFAULT);
+    // Show Share button only if Web Share API supports files (mobile mainly)
+    const shareBtn = document.getElementById('share-main-btn');
+    if(!navigator.share) {
+      shareBtn.style.display = 'none';
     }
+
+    document.getElementById('hide-result').className = 'result-card show';
+    document.getElementById('hide-result').scrollIntoView({behavior:'smooth', block:'nearest'});
+
+    setBtn('hide-btn', false, 'Encrypt & hide', HIDE_ICON);
+
+  } catch(err) {
+    document.getElementById('hide-progress').style.display = 'none';
+    clearTimeout(progressTimer);
+    showError('hide-status','hide-st','hide-sm','Network error','Could not reach the server. Try again.');
+    setBtn('hide-btn', false, 'Encrypt & hide', HIDE_ICON);
+  }
+}
+
+/* ===== EXTRACT (DECODE) ===== */
+async function submitExtract() {
+  const image = document.getElementById('stego-file').files[0];
+  const pw    = document.getElementById('extract-pw').value;
+
+  if(!image) return showError('extract-status','extract-st','extract-sm','No image','Upload the stego image.');
+  if(!pw)    return showError('extract-status','extract-st','extract-sm','No password','Enter the decryption password.');
+
+  hideStatus('extract-status');
+  document.getElementById('extract-result').className = 'extract-result';
+
+  setBtn('extract-btn', true, '', '');
+  document.getElementById('extract-progress').style.display = 'block';
+  animateProgress('extract-pf','extract-pl',['Scanning image…','Extracting data…','Decrypting…']);
+
+  const fd = new FormData();
+  fd.append('image', image);
+  fd.append('password', pw);
+
+  try {
+    const res  = await fetch(`${API}/api/extract/`, {method:'POST', body:fd});
+    const data = await res.json();
+
+    document.getElementById('extract-progress').style.display = 'none';
+    clearTimeout(progressTimer);
+
+    if(!res.ok) {
+      showError('extract-status','extract-st','extract-sm','Decryption failed', data.error || 'Wrong password or no hidden payload found.');
+      setBtn('extract-btn', false, 'Decrypt & reveal', EXT_ICON);
+      return;
+    }
+
+    extractedFileUrl = data.saved_to;
+    extractedFilename = data.filename || 'extracted-file';
+    const isText = data.filetype === 'text/plain';
+
+    document.getElementById('extract-result-sub').textContent =
+      `${data.filename || 'File'} · ${data.filetype || 'unknown type'}`;
+
+    // Text message display
+    const msgBox = document.getElementById('extracted-msg');
+    const copyBtn = document.getElementById('copy-msg-btn');
+    if(isText) {
+      try {
+        const txt = await (await fetch(data.saved_to)).text();
+        msgBox.textContent = txt;
+        msgBox.style.display = 'block';
+        copyBtn.style.display = 'inline-flex';
+      } catch(_) {
+        msgBox.style.display = 'none';
+        copyBtn.style.display = 'none';
+      }
+    } else {
+      msgBox.style.display = 'none';
+      copyBtn.style.display = 'none';
+    }
+
+    // Share / download buttons
+    const shareBtn = document.getElementById('extract-share-btn');
+    const dlBtn    = document.getElementById('extract-dl-btn');
+    shareBtn.style.display = navigator.share ? 'inline-flex' : 'none';
+    dlBtn.style.display    = 'inline-flex';
+
+    document.getElementById('extract-result').className = 'extract-result show';
+    document.getElementById('extract-result').scrollIntoView({behavior:'smooth', block:'nearest'});
+
+    setBtn('extract-btn', false, 'Decrypt & reveal', EXT_ICON);
+
+  } catch(err) {
+    document.getElementById('extract-progress').style.display = 'none';
+    clearTimeout(progressTimer);
+    showError('extract-status','extract-st','extract-sm','Network error','Could not reach the server. Try again.');
+    setBtn('extract-btn', false, 'Decrypt & reveal', EXT_ICON);
+  }
+}
+
+/* ===== SHARE / DOWNLOAD ===== */
+async function fetchBlob(url, filename) {
+  const res  = await fetch(url);
+  const blob = await res.blob();
+  return new File([blob], filename, {type: blob.type});
+}
+
+async function doShare() {
+  if(!lastStegoUrl) return;
+  try {
+    const file = await fetchBlob(lastStegoUrl, lastStegoFilename);
+    await navigator.share({title:'HifiVault stego image', files:[file]});
+  } catch(e) { if(e.name !== 'AbortError') doDownload(); }
+}
+
+async function doDownload() {
+  if(!lastStegoUrl) return;
+  const a = document.createElement('a');
+  a.href     = lastStegoUrl;
+  a.download = lastStegoFilename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+async function doExtractShare() {
+  if(!extractedFileUrl) return;
+  try {
+    const file = await fetchBlob(extractedFileUrl, extractedFilename);
+    await navigator.share({title:'HifiVault extracted file', files:[file]});
+  } catch(e) { if(e.name !== 'AbortError') doExtractDownload(); }
+}
+
+function doExtractDownload() {
+  if(!extractedFileUrl) return;
+  const a = document.createElement('a');
+  a.href     = extractedFileUrl;
+  a.download = extractedFilename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function copyMsg() {
+  const txt = document.getElementById('extracted-msg').textContent;
+  navigator.clipboard.writeText(txt).then(() => {
+    const btn = document.getElementById('copy-msg-btn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" width="13" height="13"><polyline points="20 6 9 17 4 12" stroke="currentColor"/></svg> Copied!`;
+    setTimeout(() => { btn.innerHTML = orig; }, 1800);
   });
 }
 
-function resetHideUI(){
-  // files
-  document.getElementById('cover-file').value = '';
-  document.getElementById('secret-file').value = '';
-
-  // previews
-  resetCover();
-  document.getElementById('secret-chip').style.display = 'none';
-
-  // message
-  document.getElementById('secret-msg').value = '';
-  msgInput();
-
-  // passwords
-  document.getElementById('hide-pw').value = '';
-  document.getElementById('hide-pw2').value = '';
-  pwStrength();
-  document.getElementById('pw-match').className = 'pw-match';
-
-  // status
-  document.getElementById('hide-status').className = 'status';
-  document.getElementById('hide-dl').style.display = 'none';
-
-  // progress
-  document.getElementById('hide-progress').style.display = 'none';
-
-  // reset button state (optional safety)
-  setBtn('hide-btn', false, HIDE_DEFAULT);
+/* ===== PROGRESS ANIMATION ===== */
+let progressTimer;
+function animateProgress(fillId, labelId, steps) {
+  const fill  = document.getElementById(fillId);
+  const label = document.getElementById(labelId);
+  let step = 0;
+  const inc = () => {
+    if(step < steps.length) {
+      fill.style.width  = ((step+1) / (steps.length+1) * 90) + '%';
+      label.textContent = steps[step];
+      step++;
+      progressTimer = setTimeout(inc, 900);
+    }
+  };
+  fill.style.width = '5%';
+  inc();
 }
 </script>
 </body>
